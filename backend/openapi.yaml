@@ -1,0 +1,56 @@
+openapi: 3.0.3
+info:
+  title: Cancheroo API
+  version: '1.0'
+servers:
+  - url: http://localhost/api/v1
+paths:
+  /auth/register:
+    post:
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: {type: string}
+                email: {type: string}
+                password: {type: string}
+      responses:
+        '201': {description: Created}
+  /auth/login:
+    post:
+      summary: Login user
+      responses:
+        '200': {description: Token}
+  /fields:
+    get:
+      summary: List fields
+      responses:
+        '200': {description: OK}
+  /reservations:
+    get:
+      summary: List user reservations
+      responses:
+        '200': {description: OK}
+    post:
+      summary: Create reservation
+      responses:
+        '201': {description: Created}
+  /reservations/{id}:
+    delete:
+      summary: Cancel reservation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        '200': {description: Cancelled}
+  /payments/webhook:
+    post:
+      summary: MercadoPago webhook
+      responses:
+        '200': {description: Received}
