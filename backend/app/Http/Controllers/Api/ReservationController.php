@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReservationRequest;
 use App\Models\Reservation;
+use App\Models\Waitlist;
 use Illuminate\Http\Request;
 
 class ReservationController extends Controller
@@ -37,5 +38,40 @@ class ReservationController extends Controller
         $reservation->update(['status' => 'cancelled']);
 
         return response()->json(['message' => 'Reservation cancelled']);
+    }
+
+    public function update(Request $request, Reservation $reservation)
+    {
+        if ($reservation->user_id !== $request->user()->id) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'start_time' => ['required', 'date'],
+            'end_time' => ['required', 'date', 'after:start_time'],
+        ]);
+
+        $newReservation = $reservation->replicate();
+        $newReservation->fill($data);
+        $newReservation->rescheduled_from_id = $reservation->id;
+        $newReservation->status = 'confirmed';
+        $newReservation->save();
+
+        $reservation->update(['status' => 'cancelled']);
+
+        return response()->json($newReservation);
+    }
+
+    public function waitlist(Request $request, Reservation $reservation)
+    {
+        $position = Waitlist::where('reservation_id', $reservation->id)->max('position') ?? 0;
+
+        $waitlist = Waitlist::create([
+            'reservation_id' => $reservation->id,
+            'user_id' => $request->user()->id,
+            'position' => $position + 1,
+        ]);
+
+        return response()->json($waitlist, 201);
     }
 }
