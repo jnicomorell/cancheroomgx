@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FieldController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\PaymentWebhookController;
+use App\Http\Controllers\Api\ClubController;
 
 Route::prefix('v1')->group(function () {
     Route::post('auth/register', [AuthController::class, 'register']);
@@ -15,6 +16,17 @@ Route::prefix('v1')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
 
         Route::get('fields', [FieldController::class, 'index']);
+
+        Route::middleware('role:admin,superadmin')->group(function () {
+            Route::get('clubs', [ClubController::class, 'index']);
+            Route::post('clubs', [ClubController::class, 'store']);
+            Route::put('clubs/{club}', [ClubController::class, 'update']);
+            Route::delete('clubs/{club}', [ClubController::class, 'destroy']);
+
+            Route::post('fields', [FieldController::class, 'store']);
+            Route::put('fields/{field}', [FieldController::class, 'update']);
+            Route::delete('fields/{field}', [FieldController::class, 'destroy']);
+        });
 
         Route::get('reservations', [ReservationController::class, 'index']);
         Route::post('reservations', [ReservationController::class, 'store']);
