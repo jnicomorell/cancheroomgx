@@ -30,6 +30,8 @@ Route::prefix('v1')->group(function () {
 
         Route::get('reservations', [ReservationController::class, 'index']);
         Route::post('reservations', [ReservationController::class, 'store']);
+        Route::put('reservations/{reservation}', [ReservationController::class, 'update']);
+        Route::post('reservations/{reservation}/waitlist', [ReservationController::class, 'waitlist']);
         Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy']);
     });
 
