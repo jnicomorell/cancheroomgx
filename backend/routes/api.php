@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\FieldController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\PaymentWebhookController;
 use App\Http\Controllers\Api\ClubController;
+use App\Http\Controllers\Api\PaymentController;
 
 Route::prefix('v1')->group(function () {
     Route::post('auth/register', [AuthController::class, 'register']);
@@ -33,6 +34,8 @@ Route::prefix('v1')->group(function () {
         Route::put('reservations/{reservation}', [ReservationController::class, 'update']);
         Route::post('reservations/{reservation}/waitlist', [ReservationController::class, 'waitlist']);
         Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy']);
+
+        Route::post('payments/checkout', [PaymentController::class, 'checkout']);
     });
 
     Route::post('payments/webhook', PaymentWebhookController::class);
