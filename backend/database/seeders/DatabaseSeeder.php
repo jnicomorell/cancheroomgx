@@ -36,5 +36,11 @@ class DatabaseSeeder extends Seeder
             'surface' => 'cesped',
             'price_per_hour' => 100,
         ]);
+
+        $this->call([
+            TournamentSeeder::class,
+            TeamSeeder::class,
+            RegistrationSeeder::class,
+        ]);
     }
 }
