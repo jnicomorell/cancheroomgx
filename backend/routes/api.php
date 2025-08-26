@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\PaymentWebhookController;
 use App\Http\Controllers\Api\ClubController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\TournamentController;
 
 Route::prefix('v1')->group(function () {
     Route::post('auth/register', [AuthController::class, 'register']);
@@ -18,6 +19,10 @@ Route::prefix('v1')->group(function () {
 
         Route::get('fields', [FieldController::class, 'index']);
 
+        Route::get('tournaments', [TournamentController::class, 'index']);
+        Route::get('tournaments/{tournament}', [TournamentController::class, 'show']);
+        Route::post('tournaments/{tournament}/register', [TournamentController::class, 'register']);
+
         Route::middleware('role:admin,superadmin')->group(function () {
             Route::get('clubs', [ClubController::class, 'index']);
             Route::post('clubs', [ClubController::class, 'store']);
@@ -27,6 +32,10 @@ Route::prefix('v1')->group(function () {
             Route::post('fields', [FieldController::class, 'store']);
             Route::put('fields/{field}', [FieldController::class, 'update']);
             Route::delete('fields/{field}', [FieldController::class, 'destroy']);
+
+            Route::post('tournaments', [TournamentController::class, 'store']);
+            Route::put('tournaments/{tournament}', [TournamentController::class, 'update']);
+            Route::delete('tournaments/{tournament}', [TournamentController::class, 'destroy']);
         });
 
         Route::get('reservations', [ReservationController::class, 'index']);

@@ -30,6 +30,53 @@ paths:
       summary: List fields
       responses:
         '200': {description: OK}
+  /tournaments:
+    get:
+      summary: List tournaments
+      responses:
+        '200': {description: OK}
+    post:
+      summary: Create tournament
+      responses:
+        '201': {description: Created}
+  /tournaments/{id}:
+    get:
+      summary: Show tournament
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        '200': {description: OK}
+    put:
+      summary: Update tournament
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        '200': {description: OK}
+    delete:
+      summary: Delete tournament
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        '204': {description: No Content}
+  /tournaments/{id}/register:
+    post:
+      summary: Register team to tournament
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        '201': {description: Created}
   /reservations:
     get:
       summary: List user reservations
