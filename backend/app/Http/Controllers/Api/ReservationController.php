@@ -18,6 +18,16 @@ class ReservationController extends Controller
 
     public function store(ReservationRequest $request)
     {
+        $overlap = Reservation::where('field_id', $request->field_id)
+            ->where('status', 'confirmed')
+            ->where('start_time', '<', $request->end_time)
+            ->where('end_time', '>', $request->start_time)
+            ->exists();
+
+        if ($overlap) {
+            return response()->json(['message' => 'Time slot already booked'], 409);
+        }
+
         $reservation = Reservation::create([
             'user_id' => $request->user()->id,
             'field_id' => $request->field_id,
