@@ -48,4 +48,9 @@ class PaymentController extends Controller
             'init_point' => $preference->init_point ?? null,
         ], 201);
     }
+
+    public function confirm(Request $request)
+    {
+        return response()->json(['message' => 'Payment confirmed']);
+    }
 }

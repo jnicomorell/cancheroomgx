@@ -35,6 +35,8 @@ Route::prefix('v1')->group(function () {
             Route::put('fields/{field}', [FieldController::class, 'update']);
             Route::delete('fields/{field}', [FieldController::class, 'destroy']);
 
+            Route::post('payments/confirm', [PaymentController::class, 'confirm']);
+
             Route::post('tournaments', [TournamentController::class, 'store']);
             Route::put('tournaments/{tournament}', [TournamentController::class, 'update']);
             Route::delete('tournaments/{tournament}', [TournamentController::class, 'destroy']);
