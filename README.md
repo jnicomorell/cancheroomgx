@@ -59,3 +59,7 @@ pnpm run dev
 ```shell
 pnpm run build
 ```
+
+## API
+
+Documentation for the backend endpoints is available in the OpenAPI format. You can view it using Swagger UI [here](backend/openapi.html).
