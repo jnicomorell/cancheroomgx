@@ -25,6 +25,38 @@ paths:
       summary: Login user
       responses:
         '200': {description: Token}
+  /auth/{provider}/redirect:
+    get:
+      summary: Redirect to social auth provider
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google, github]
+      responses:
+        '302': {description: Redirect}
+  /auth/{provider}/callback:
+    get:
+      summary: Social auth callback
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [google, github]
+      responses:
+        '200':
+          description: Token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
   /clubs:
     get:
       summary: List clubs
