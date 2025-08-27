@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ClubController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\TournamentController;
 use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\SocialAuthController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -18,6 +19,8 @@ Route::prefix('v1')->group(function () {
     Route::post('auth/login', [AuthController::class, 'login']);
     Route::post('auth/forgot-password', [PasswordResetController::class, 'sendResetLink']);
     Route::post('auth/reset-password', [PasswordResetController::class, 'reset']);
+    Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect']);
+    Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('auth/user', [AuthController::class, 'user']);
