@@ -12,11 +12,15 @@
             <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
-    <source>
+    <coverage>
         <include>
             <directory>app</directory>
         </include>
-    </source>
+        <report>
+            <html outputDirectory="coverage"/>
+            <text outputFile="php://stdout"/>
+        </report>
+    </coverage>
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
