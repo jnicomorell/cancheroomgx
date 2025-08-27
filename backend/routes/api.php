@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FieldController;
+use App\Http\Controllers\Api\NearbyFieldController;
 use App\Http\Controllers\Api\ReservationController;
 use App\Http\Controllers\Api\PaymentWebhookController;
 use App\Http\Controllers\Api\ClubController;
@@ -17,6 +18,7 @@ Route::prefix('v1')->group(function () {
         Route::get('auth/user', [AuthController::class, 'user']);
         Route::post('auth/logout', [AuthController::class, 'logout']);
 
+        Route::get('fields/nearby', NearbyFieldController::class);
         Route::get('fields', [FieldController::class, 'index']);
 
         Route::get('tournaments', [TournamentController::class, 'index']);
