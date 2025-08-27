@@ -69,7 +69,7 @@ class PaymentWebhookTest extends TestCase
         ];
     }
 
-    public function test_invalid_signature_returns_unauthorized(): void
+    public function test_invalid_signature_returns_bad_request(): void
     {
         config()->set('services.mercadopago.webhook_secret', 'secret');
 
@@ -102,6 +102,6 @@ class PaymentWebhookTest extends TestCase
 
         $this->withHeader('X-Signature', 'invalid')
             ->postJson('/api/v1/payments/webhook', $payload)
-            ->assertStatus(401);
+            ->assertStatus(400);
     }
 }
