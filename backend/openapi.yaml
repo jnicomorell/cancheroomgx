@@ -25,11 +25,45 @@ paths:
       summary: Login user
       responses:
         '200': {description: Token}
+  /clubs:
+    get:
+      summary: List clubs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Club'
+    post:
+      summary: Create club
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClubRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Club'
   /fields:
     get:
       summary: List fields
       responses:
-        '200': {description: OK}
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Field'
   /tournaments:
     get:
       summary: List tournaments
@@ -81,11 +115,29 @@ paths:
     get:
       summary: List user reservations
       responses:
-        '200': {description: OK}
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
     post:
       summary: Create reservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationRequest'
       responses:
-        '201': {description: Created}
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
   /reservations/{id}:
     delete:
       summary: Cancel reservation
@@ -95,9 +147,183 @@ paths:
           required: true
           schema: {type: integer}
       responses:
-        '200': {description: Cancelled}
+        '200':
+          description: Cancelled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /payments/checkout:
+    post:
+      summary: Checkout payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCheckoutRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  preference_id:
+                    type: string
+                    nullable: true
+                  init_point:
+                    type: string
+                    nullable: true
   /payments/webhook:
     post:
       summary: MercadoPago webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentWebhookRequest'
       responses:
-        '200': {description: Received}
+        '200':
+          description: Received
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+components:
+  schemas:
+    Club:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Club Central
+        address:
+          type: string
+          nullable: true
+        lat:
+          type: number
+          format: float
+          nullable: true
+        lng:
+          type: number
+          format: float
+          nullable: true
+    ClubRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        lat:
+          type: number
+          format: float
+        lng:
+          type: number
+          format: float
+    Field:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        club_id:
+          type: integer
+        name:
+          type: string
+        sport:
+          type: string
+        surface:
+          type: string
+          nullable: true
+        indoor:
+          type: boolean
+        lighting:
+          type: boolean
+        price_per_hour:
+          type: number
+          format: float
+    ReservationRequest:
+      type: object
+      required:
+        - field_id
+        - start_time
+        - end_time
+        - total_price
+      properties:
+        field_id:
+          type: integer
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        total_price:
+          type: number
+          format: float
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        field_id:
+          type: integer
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        status:
+          type: string
+        total_price:
+          type: number
+          format: float
+    PaymentCheckoutRequest:
+      type: object
+      required:
+        - reservation_id
+      properties:
+        reservation_id:
+          type: integer
+    PaymentWebhookRequest:
+      type: object
+      required:
+        - reservation_id
+        - status
+      properties:
+        reservation_id:
+          type: integer
+        status:
+          type: string
+        amount:
+          type: number
+          format: float
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        reservation_id:
+          type: integer
+        provider:
+          type: string
+        status:
+          type: string
+        amount:
+          type: number
+          format: float
