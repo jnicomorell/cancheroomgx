@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use App\Models\Reservation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PaymentWebhookController extends Controller
 {
@@ -16,8 +17,10 @@ class PaymentWebhookController extends Controller
         $expected = hash_hmac('sha256', $request->getContent(), $secret ?? '');
 
         if (!$signature || !hash_equals($expected, $signature)) {
-            return response()->json(['message' => 'Invalid signature'], 401);
+            return response()->json(['message' => 'Invalid signature'], 400);
         }
+
+        Log::info('MercadoPago webhook validated', $request->all());
 
         $reservation = Reservation::findOrFail($request->input('reservation_id'));
         $status = $request->input('status', 'paid');
