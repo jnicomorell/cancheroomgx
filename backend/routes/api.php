@@ -9,14 +9,35 @@ use App\Http\Controllers\Api\PaymentWebhookController;
 use App\Http\Controllers\Api\ClubController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\TournamentController;
+use App\Http\Controllers\Api\PasswordResetController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 
 Route::prefix('v1')->group(function () {
     Route::post('auth/register', [AuthController::class, 'register']);
     Route::post('auth/login', [AuthController::class, 'login']);
+    Route::post('auth/forgot-password', [PasswordResetController::class, 'sendResetLink']);
+    Route::post('auth/reset-password', [PasswordResetController::class, 'reset']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('auth/user', [AuthController::class, 'user']);
         Route::post('auth/logout', [AuthController::class, 'logout']);
+
+        Route::get('email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+            $request->fulfill();
+
+            return response()->json(['message' => 'Email verified']);
+        })->middleware('signed')->name('verification.verify');
+
+        Route::post('email/verification-notification', function (Request $request) {
+            if ($request->user()->hasVerifiedEmail()) {
+                return response()->json(['message' => 'Already verified'], 400);
+            }
+
+            $request->user()->sendEmailVerificationNotification();
+
+            return response()->json(['message' => 'Verification link sent']);
+        })->middleware('throttle:6,1')->name('verification.send');
 
         Route::get('fields/nearby', NearbyFieldController::class);
         Route::get('fields', [FieldController::class, 'index']);
