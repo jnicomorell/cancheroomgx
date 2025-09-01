@@ -12,7 +12,7 @@ class ExampleTest extends TestCase
      */
     public function test_the_application_returns_a_successful_response(): void
     {
-        config(['app.key' => env('APP_KEY', 'base64:'.base64_encode(random_bytes(32)))]);
+        config(['app.key' => 'base64:'.base64_encode(random_bytes(32))]);
 
         $response = $this->get('/');
 

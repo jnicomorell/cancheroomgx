@@ -17,8 +17,8 @@ use Illuminate\Http\Request;
 Route::prefix('v1')->group(function () {
     Route::post('auth/register', [AuthController::class, 'register']);
     Route::post('auth/login', [AuthController::class, 'login']);
-    Route::post('auth/forgot-password', [PasswordResetController::class, 'sendResetLink']);
-    Route::post('auth/reset-password', [PasswordResetController::class, 'reset']);
+    Route::post('auth/forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
+    Route::post('auth/reset-password', [PasswordResetController::class, 'reset'])->name('password.reset');
     Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect']);
     Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback']);
 
