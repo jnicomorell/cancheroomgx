@@ -25,7 +25,14 @@ class PaymentWebhookController extends Controller
         $reservation = Reservation::findOrFail($request->input('reservation_id'));
         $status = $request->input('status', 'paid');
 
-        $reservation->update(['status' => $status]);
+        $reservationStatusMap = [
+            'paid' => 'confirmed',
+            'failed' => 'cancelled',
+            'pending' => 'pending',
+        ];
+        $reservation->update([
+            'status' => $reservationStatusMap[$status] ?? 'pending',
+        ]);
 
         Payment::updateOrCreate(
             ['reservation_id' => $reservation->id],

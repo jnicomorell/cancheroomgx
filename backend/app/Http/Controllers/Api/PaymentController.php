@@ -48,4 +48,30 @@ class PaymentController extends Controller
             'init_point' => $preference->init_point ?? null,
         ], 201);
     }
+
+    public function manual(Request $request)
+    {
+        $data = $request->validate([
+            'reservation_id' => ['required', 'exists:reservations,id'],
+            'amount' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $payment = Payment::create([
+            'reservation_id' => $data['reservation_id'],
+            'provider' => 'manual',
+            'status' => 'pending',
+            'amount' => $data['amount'],
+            'payload' => [],
+        ]);
+
+        return response()->json($payment, 201);
+    }
+
+    public function confirm(Payment $payment)
+    {
+        $payment->update(['status' => 'paid']);
+        $payment->reservation->update(['status' => 'confirmed']);
+
+        return response()->json($payment);
+    }
 }

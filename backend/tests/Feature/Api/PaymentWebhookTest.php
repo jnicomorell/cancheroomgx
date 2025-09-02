@@ -53,7 +53,12 @@ class PaymentWebhookTest extends TestCase
             ->assertOk();
 
         $reservation->refresh();
-        $this->assertSame($status, $reservation->status);
+        $statusMap = [
+            'paid' => 'confirmed',
+            'failed' => 'cancelled',
+            'pending' => 'pending',
+        ];
+        $this->assertSame($statusMap[$status], $reservation->status);
         $this->assertDatabaseHas('payments', [
             'reservation_id' => $reservation->id,
             'status' => $status,
