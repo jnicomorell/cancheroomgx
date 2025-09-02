@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Api;
+namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,6 +14,8 @@ class SocialAuthTest extends TestCase
 
     public function test_callback_creates_user_and_returns_token(): void
     {
+        config(['app.key' => 'base64:' . base64_encode(random_bytes(32))]);
+
         $socialUser = new SocialiteUser();
         $socialUser->map([
             'id' => '12345',
@@ -25,7 +27,7 @@ class SocialAuthTest extends TestCase
         Socialite::shouldReceive('stateless')->andReturnSelf();
         Socialite::shouldReceive('user')->andReturn($socialUser);
 
-        $response = $this->get('/api/v1/auth/github/callback');
+        $response = $this->get('/auth/github/callback');
 
         $response->assertStatus(200)->assertJsonStructure(['token']);
 
