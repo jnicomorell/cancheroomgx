@@ -35,6 +35,7 @@ class ReservationController extends Controller
             'end_time' => $request->end_time,
             'status' => 'confirmed',
             'total_price' => $request->total_price,
+            'recurring_rule' => $request->recurring_rule,
         ]);
 
         $delay = $reservation->start_time->copy()->subHour();
@@ -65,7 +66,19 @@ class ReservationController extends Controller
         $data = $request->validate([
             'start_time' => ['required', 'date'],
             'end_time' => ['required', 'date', 'after:start_time'],
+            'recurring_rule' => ['nullable', 'string'],
         ]);
+
+        $overlap = Reservation::where('field_id', $reservation->field_id)
+            ->where('status', 'confirmed')
+            ->where('id', '!=', $reservation->id)
+            ->where('start_time', '<', $data['end_time'])
+            ->where('end_time', '>', $data['start_time'])
+            ->exists();
+
+        if ($overlap) {
+            return response()->json(['message' => 'Time slot already booked'], 409);
+        }
 
         $newReservation = $reservation->replicate();
         $newReservation->fill($data);

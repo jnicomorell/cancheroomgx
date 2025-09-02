@@ -26,6 +26,7 @@ class ReservationRequest extends FormRequest
             'start_time' => ['required', 'date'],
             'end_time' => ['required', 'date', 'after:start_time'],
             'total_price' => ['required', 'numeric'],
+            'recurring_rule' => ['nullable', 'string'],
         ];
     }
 }
