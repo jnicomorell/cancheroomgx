@@ -52,6 +52,9 @@ Route::prefix('v1')->group(function () {
             Route::post('tournaments', [TournamentController::class, 'store']);
             Route::put('tournaments/{tournament}', [TournamentController::class, 'update']);
             Route::delete('tournaments/{tournament}', [TournamentController::class, 'destroy']);
+
+            Route::post('payments/manual', [PaymentController::class, 'manual']);
+            Route::post('payments/{payment}/confirm', [PaymentController::class, 'confirm']);
         });
 
         Route::get('reservations', [ReservationController::class, 'index']);
