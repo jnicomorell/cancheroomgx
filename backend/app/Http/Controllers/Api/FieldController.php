@@ -35,6 +35,11 @@ class FieldController extends Controller
         return response()->json($field, 201);
     }
 
+    public function show(Field $field)
+    {
+        return $field->load('club');
+    }
+
     public function update(FieldRequest $request, Field $field)
     {
         $field->update($request->validated());

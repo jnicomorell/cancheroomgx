@@ -27,6 +27,11 @@ class ClubController extends Controller
         return response()->json($club, 201);
     }
 
+    public function show(Club $club)
+    {
+        return $club;
+    }
+
     public function update(ClubRequest $request, Club $club)
     {
         $club->update($request->validated());
