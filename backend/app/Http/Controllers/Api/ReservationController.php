@@ -7,6 +7,8 @@ use App\Http\Requests\ReservationRequest;
 use App\Models\Reservation;
 use App\Models\Waitlist;
 use App\Notifications\ReservationReminderNotification;
+use App\Notifications\WeatherAlertNotification;
+use App\Services\WeatherService;
 use Illuminate\Http\Request;
 
 class ReservationController extends Controller
@@ -16,7 +18,7 @@ class ReservationController extends Controller
         return $request->user()->reservations()->with('field.club')->get();
     }
 
-    public function store(ReservationRequest $request)
+    public function store(ReservationRequest $request, WeatherService $weather)
     {
         $overlap = Reservation::where('field_id', $request->field_id)
             ->where('status', 'confirmed')
@@ -38,10 +40,20 @@ class ReservationController extends Controller
             'recurring_rule' => $request->recurring_rule,
         ]);
 
+        $reservation->load('field.club');
+
         $delay = $reservation->start_time->copy()->subHour();
         $request->user()->notify(
             (new ReservationReminderNotification($reservation))->delay($delay)
         );
+
+        $club = $reservation->field->club;
+        if ($club && $club->lat !== null && $club->lng !== null) {
+            $weatherData = $weather->getWeather($club->lat, $club->lng);
+            $request->user()->notify(
+                (new WeatherAlertNotification($reservation, $weatherData))->delay($delay)
+            );
+        }
 
         return response()->json($reservation, 201);
     }
