@@ -59,8 +59,11 @@ class ReservationReminderNotificationTest extends TestCase
         ]);
         $request->setUserResolver(fn () => $user);
 
+        $weather = \Mockery::mock(\App\Services\WeatherService::class);
+        $weather->shouldReceive('getWeather')->andReturn([]);
+
         $controller = new ReservationController();
-        $controller->store($request);
+        $controller->store($request, $weather);
 
         Notification::assertSentTo($user, ReservationReminderNotification::class);
         $notification = Notification::sent($user, ReservationReminderNotification::class)->first();

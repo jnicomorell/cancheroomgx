@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FieldController;
 use App\Http\Controllers\Api\NearbyFieldController;
 use App\Http\Controllers\Api\ReservationController;
+use App\Http\Controllers\Api\UserReservationController;
 use App\Http\Controllers\Api\PaymentWebhookController;
 use App\Http\Controllers\Api\ClubController;
 use App\Http\Controllers\Api\PaymentController;
@@ -62,6 +63,11 @@ Route::prefix('v1')->group(function () {
         Route::put('reservations/{reservation}', [ReservationController::class, 'update']);
         Route::post('reservations/{reservation}/waitlist', [ReservationController::class, 'waitlist']);
         Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy']);
+
+        Route::get('user/reservations/upcoming', [UserReservationController::class, 'upcoming']);
+        Route::get('user/reservations/pending', [UserReservationController::class, 'pending']);
+        Route::get('user/reservations/history', [UserReservationController::class, 'history']);
+        Route::get('user/reservations/cancelled', [UserReservationController::class, 'cancelled']);
 
         Route::post('payments/checkout', [PaymentController::class, 'checkout']);
     });
