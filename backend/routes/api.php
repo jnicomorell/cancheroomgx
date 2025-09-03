@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\ClubController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\TournamentController;
 use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\AdminReportController;
+use App\Http\Controllers\Api\AdminReservationController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -56,6 +58,10 @@ Route::prefix('v1')->group(function () {
 
             Route::post('payments/manual', [PaymentController::class, 'manual']);
             Route::post('payments/{payment}/confirm', [PaymentController::class, 'confirm']);
+
+            Route::get('reports/occupancy', [AdminReportController::class, 'occupancy']);
+            Route::get('reports/reservations', [AdminReportController::class, 'reservations']);
+            Route::post('reservations/{reservation}/confirm-manual-payment', [AdminReservationController::class, 'confirmManualPayment']);
         });
 
         Route::get('reservations', [ReservationController::class, 'index']);
