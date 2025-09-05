@@ -23,13 +23,15 @@ import {
   Banknote,
   Loader2
 } from 'lucide-react';
+import axios from 'axios';
 import { mockCourts, mockClubs, getAvailableTimeSlots } from '@/lib/mockData';
 import { Court, Club, Participant } from '@/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
+import { createReservation } from '@/lib/api/reservations';
 
-const Booking: React.FC = () => {
+const ReservationForm: React.FC = () => {
   const { courtId } = useParams<{ courtId: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -45,6 +47,7 @@ const Booking: React.FC = () => {
   const [notes, setNotes] = useState<string>('');
   const [availableSlots, setAvailableSlots] = useState<Array<{time: string, available: boolean}>>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (courtId) {
@@ -111,24 +114,30 @@ const Booking: React.FC = () => {
     
     setLoading(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Here you would normally make an API call to create the booking
-    console.log('Booking data:', {
-      courtId: court.id,
-      userId: user.id,
-      date: format(selectedDate, 'yyyy-MM-dd'),
-      startTime: selectedTime,
-      endTime: `${parseInt(selectedTime.split(':')[0]) + duration}:${selectedTime.split(':')[1]}`,
-      totalPrice: court.pricePerHour * duration,
-      paymentMethod,
-      participants,
-      notes
-    });
-    
-    setLoading(false);
-    navigate('/bookings', { state: { bookingSuccess: true } });
+    setErrorMessage(null);
+    const start = new Date(`${format(selectedDate, 'yyyy-MM-dd')}T${selectedTime}:00`);
+    const endHour = parseInt(selectedTime.split(':')[0]) + duration;
+    const end = new Date(
+      `${format(selectedDate, 'yyyy-MM-dd')}T${String(endHour).padStart(2, '0')}:${selectedTime.split(':')[1]}:00`
+    );
+
+    try {
+      await createReservation({
+        field_id: Number(court.id),
+        start_time: start.toISOString(),
+        end_time: end.toISOString(),
+        total_price: court.pricePerHour * duration,
+      });
+      navigate('/bookings', { state: { bookingSuccess: true } });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setErrorMessage(error.response?.data?.message || 'Ocurrió un error al crear la reserva');
+      } else {
+        setErrorMessage('Ocurrió un error al crear la reserva');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!court || !club) {
@@ -440,6 +449,12 @@ const Booking: React.FC = () => {
                 </Button>
               </div>
 
+              {errorMessage && (
+                <Alert variant="destructive" className="mt-4">
+                  <AlertDescription>{errorMessage}</AlertDescription>
+                </Alert>
+              )}
+
               {!selectedDate || !selectedTime ? (
                 <Alert>
                   <AlertDescription>
@@ -455,4 +470,4 @@ const Booking: React.FC = () => {
   );
 };
 
-export default Booking;
+export default ReservationForm;

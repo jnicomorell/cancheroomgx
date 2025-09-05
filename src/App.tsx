@@ -8,8 +8,8 @@ import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Search from './pages/Search';
-import Booking from './pages/Booking';
-import MyBookings from './pages/MyBookings';
+import ReservationForm from './pages/ReservationForm';
+import MyReservations from './pages/MyReservations';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Tournaments from './pages/Tournaments';
 import NotFound from './pages/NotFound';
@@ -30,8 +30,8 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/search" element={<Search />} />
-              <Route path="/book/:courtId" element={<Booking />} />
-              <Route path="/bookings" element={<MyBookings />} />
+              <Route path="/book/:courtId" element={<ReservationForm />} />
+              <Route path="/bookings" element={<MyReservations />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/tournaments" element={<Tournaments />} />
               <Route path="/fields" element={<FieldsPage />} />

@@ -17,25 +17,40 @@ import {
   X,
   CheckCircle
 } from 'lucide-react';
-import { mockBookings, mockCourts, mockClubs } from '@/lib/mockData';
+import axios from 'axios';
+import { mockCourts, mockClubs } from '@/lib/mockData';
 import { Booking } from '@/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  listUserReservations,
+  cancelReservation,
+} from '@/lib/api/reservations';
 
-const MyBookings: React.FC = () => {
+const MyReservations: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) {
-      // Filter bookings for current user
-      const userBookings = mockBookings.filter(b => b.userId === user.id);
-      setBookings(userBookings);
-    }
+    const fetchReservations = async () => {
+      if (!user) return;
+      try {
+        const data = await listUserReservations();
+        setBookings(data);
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          setErrorMessage(error.response?.data?.message || 'Error al cargar reservas');
+        } else {
+          setErrorMessage('Error al cargar reservas');
+        }
+      }
+    };
+    fetchReservations();
   }, [user]);
 
   useEffect(() => {
@@ -77,10 +92,19 @@ const MyBookings: React.FC = () => {
     }
   };
 
-  const handleCancelBooking = (bookingId: string) => {
-    setBookings(prev => prev.map(b => 
-      b.id === bookingId ? { ...b, status: 'cancelled' as const } : b
-    ));
+  const handleCancelBooking = async (bookingId: string) => {
+    try {
+      await cancelReservation(bookingId);
+      setBookings(prev =>
+        prev.map(b => (b.id === bookingId ? { ...b, status: 'cancelled' as const } : b))
+      );
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setErrorMessage(error.response?.data?.message || 'No se pudo cancelar la reserva');
+      } else {
+        setErrorMessage('No se pudo cancelar la reserva');
+      }
+    }
   };
 
   const handleReschedule = (bookingId: string) => {
@@ -238,6 +262,12 @@ const MyBookings: React.FC = () => {
         </Alert>
       )}
 
+      {errorMessage && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Mis Reservas</h1>
         <p className="text-gray-600">Gestiona tus reservas de canchas</p>
@@ -346,4 +376,4 @@ const MyBookings: React.FC = () => {
   );
 };
 
-export default MyBookings;
+export default MyReservations;
