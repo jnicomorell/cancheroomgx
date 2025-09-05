@@ -11,6 +11,23 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <testsuite name="Authentication">
+            <file>tests/Feature/Api/AuthTest.php</file>
+            <directory>tests/Feature/Auth</directory>
+        </testsuite>
+        <testsuite name="Fields">
+            <file>tests/Feature/FieldsTest.php</file>
+        </testsuite>
+        <testsuite name="Reservations">
+            <file>tests/Feature/ReservationAdvancedTest.php</file>
+            <file>tests/Feature/UserReservationsTest.php</file>
+        </testsuite>
+        <testsuite name="Payments">
+            <file>tests/Feature/PaymentsTest.php</file>
+        </testsuite>
+        <testsuite name="Tournaments">
+            <file>tests/Feature/TournamentsTest.php</file>
+        </testsuite>
     </testsuites>
     <coverage>
         <include>

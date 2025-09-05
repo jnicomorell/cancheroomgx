@@ -8,6 +8,7 @@ use App\Models\Club;
 use App\Models\Field;
 use App\Models\User;
 use App\Notifications\ReservationReminderNotification;
+use App\Services\CalendarService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Notification;
@@ -61,9 +62,11 @@ class ReservationReminderNotificationTest extends TestCase
 
         $weather = \Mockery::mock(\App\Services\WeatherService::class);
         $weather->shouldReceive('getWeather')->andReturn([]);
+        $calendar = \Mockery::mock(CalendarService::class);
+        $calendar->shouldReceive('createEvent')->once();
 
         $controller = new ReservationController();
-        $controller->store($request, $weather);
+        $controller->store($request, $weather, $calendar);
 
         Notification::assertSentTo($user, ReservationReminderNotification::class);
         $notification = Notification::sent($user, ReservationReminderNotification::class)->first();
