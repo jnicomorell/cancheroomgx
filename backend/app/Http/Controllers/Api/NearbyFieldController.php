@@ -26,12 +26,15 @@ class NearbyFieldController extends Controller
                     $distance = $this->distance($lat, $lng, $field->club->lat, $field->club->lng);
                     return $distance <= 50; // kilometers
                 })
-                ->map(function ($field) use ($weather) {
+                ->map(function ($field) use ($weather, $lat, $lng) {
+                    $distance = $this->distance($lat, $lng, $field->club->lat, $field->club->lng);
+
                     return [
                         'id' => $field->id,
                         'name' => $field->name,
                         'sport' => $field->sport,
                         'price_per_hour' => $field->price_per_hour,
+                        'distance' => $distance,
                         'club' => [
                             'id' => $field->club->id,
                             'name' => $field->club->name,
