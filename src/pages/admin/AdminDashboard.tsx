@@ -27,19 +27,34 @@ import {
   Edit,
   Eye
 } from 'lucide-react';
-import { mockBookings, mockCourts, mockClubs, mockUsers } from '@/lib/mockData';
+import { mockBookings, mockCourts, mockClubs } from '@/lib/mockData';
 import { useAuth } from '@/contexts/AuthContext';
+import api from '@/lib/api';
+import { User } from '@/types';
 import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [users, setUsers] = useState<User[]>([]);
   const [stats, setStats] = useState({
     totalBookings: 0,
     totalRevenue: 0,
     totalUsers: 0,
     occupancyRate: 0
   });
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const { data } = await api.get<User[]>('/api/v1/users');
+        setUsers(data);
+      } catch {
+        setUsers([]);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   useEffect(() => {
     // Calculate stats based on user role
@@ -52,15 +67,15 @@ const AdminDashboard: React.FC = () => {
       });
 
     const revenue = bookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
-    const users = user?.role === 'superadmin' ? mockUsers.length : bookings.length;
-    
+    const totalUsers = user?.role === 'superadmin' ? users.length : bookings.length;
+
     setStats({
       totalBookings: bookings.length,
       totalRevenue: revenue,
-      totalUsers: users,
+      totalUsers,
       occupancyRate: 75 // Mock occupancy rate
     });
-  }, [user]);
+  }, [user, users]);
 
   const revenueData = [
     { month: 'Ene', revenue: 12000 },
@@ -76,8 +91,8 @@ const AdminDashboard: React.FC = () => {
     { name: 'Fútbol', value: 35, color: '#10B981' }
   ];
 
-  const userCourts = user?.role === 'superadmin' ? 
-    mockCourts : 
+  const userCourts = user?.role === 'superadmin' ?
+    mockCourts :
     mockCourts.filter(court => {
       const club = mockClubs.find(c => c.id === court.clubId);
       return club?.adminId === user?.id;
@@ -305,7 +320,7 @@ const AdminDashboard: React.FC = () => {
             {mockBookings.slice(0, 10).map((booking) => {
               const court = mockCourts.find(c => c.id === booking.courtId);
               const club = mockClubs.find(c => c.id === court?.clubId);
-              const bookingUser = mockUsers.find(u => u.id === booking.userId);
+              const bookingUser = users.find(u => u.id === booking.userId);
               
               return (
                 <Card key={booking.id}>
@@ -366,15 +381,15 @@ const AdminDashboard: React.FC = () => {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span>Total de usuarios: {mockUsers.length}</span>
+                      <span>Total de usuarios: {users.length}</span>
                       <Button variant="outline">Ver Todos</Button>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span>Administradores: {mockUsers.filter(u => u.role === 'admin').length}</span>
+                      <span>Administradores: {users.filter(u => u.role === 'admin').length}</span>
                       <Button variant="outline">Gestionar</Button>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span>Clientes: {mockUsers.filter(u => u.role === 'client').length}</span>
+                      <span>Clientes: {users.filter(u => u.role === 'client').length}</span>
                       <Button variant="outline">Ver Detalles</Button>
                     </div>
                   </div>

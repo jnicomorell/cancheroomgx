@@ -1,12 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/types';
-import { mockUsers } from '@/lib/mockData';
+import api from '@/lib/api';
+
+interface RegisterData {
+  name: string;
+  email: string;
+  phone: string;
+  role: 'superadmin' | 'admin' | 'client';
+  password: string;
+}
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  register: (userData: Omit<User, 'id' | 'createdAt'>) => Promise<boolean>;
+  logout: () => Promise<void>;
+  register: (userData: RegisterData) => Promise<boolean>;
   isLoading: boolean;
 }
 
@@ -17,49 +25,78 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem('cancheroo_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    const initAuth = async () => {
+      const token = localStorage.getItem('sanctum_token');
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const { data } = await api.get<User>('/api/v1/auth/user');
+        setUser(data);
+        localStorage.setItem('cancheroo_user', JSON.stringify(data));
+      } catch {
+        localStorage.removeItem('sanctum_token');
+        localStorage.removeItem('cancheroo_user');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    initAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    
-    // Mock authentication
-    const foundUser = mockUsers.find(u => u.email === email);
-    if (foundUser) {
-      setUser(foundUser);
-      localStorage.setItem('cancheroo_user', JSON.stringify(foundUser));
-      setIsLoading(false);
+    try {
+      const { data } = await api.post<{ token: string }>('/api/v1/auth/login', {
+        email,
+        password,
+      });
+      localStorage.setItem('sanctum_token', data.token);
+      const userRes = await api.get<User>('/api/v1/auth/user');
+      setUser(userRes.data);
+      localStorage.setItem('cancheroo_user', JSON.stringify(userRes.data));
       return true;
+    } catch {
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
-    return false;
   };
 
-  const register = async (userData: Omit<User, 'id' | 'createdAt'>): Promise<boolean> => {
+  const register = async (userData: RegisterData): Promise<boolean> => {
     setIsLoading(true);
-    
-    // Mock registration
-    const newUser: User = {
-      ...userData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString()
-    };
-    
-    setUser(newUser);
-    localStorage.setItem('cancheroo_user', JSON.stringify(newUser));
-    setIsLoading(false);
-    return true;
+    try {
+      const { data } = await api.post<{ token: string }>('/api/v1/auth/register', {
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
+        role: userData.role,
+        password: userData.password,
+        password_confirmation: userData.password,
+      });
+      localStorage.setItem('sanctum_token', data.token);
+      const userRes = await api.get<User>('/api/v1/auth/user');
+      setUser(userRes.data);
+      localStorage.setItem('cancheroo_user', JSON.stringify(userRes.data));
+      return true;
+    } catch {
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('cancheroo_user');
+  const logout = async () => {
+    try {
+      await api.post('/api/v1/auth/logout');
+    } catch {
+      // ignore errors on logout
+    } finally {
+      setUser(null);
+      localStorage.removeItem('cancheroo_user');
+      localStorage.removeItem('sanctum_token');
+    }
   };
 
   return (

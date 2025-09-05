@@ -40,7 +40,8 @@ const Register: React.FC = () => {
       name: formData.name,
       email: formData.email,
       phone: formData.phone,
-      role: formData.role
+      role: formData.role,
+      password: formData.password
     });
 
     if (success) {
