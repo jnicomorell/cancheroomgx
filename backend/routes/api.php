@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\AdminReportController;
 use App\Http\Controllers\Api\AdminReservationController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\ExtraServiceController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -53,6 +54,8 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('clubs', ClubController::class)->except(['create', 'edit']);
             Route::apiResource('fields', FieldController::class)->except(['create', 'edit']);
 
+            Route::apiResource('extra-services', ExtraServiceController::class)->except(['create', 'edit']);
+
             Route::post('tournaments', [TournamentController::class, 'store']);
             Route::put('tournaments/{tournament}', [TournamentController::class, 'update']);
             Route::delete('tournaments/{tournament}', [TournamentController::class, 'destroy']);
@@ -69,6 +72,8 @@ Route::prefix('v1')->group(function () {
         Route::post('reservations', [ReservationController::class, 'store']);
         Route::put('reservations/{reservation}', [ReservationController::class, 'update']);
         Route::post('reservations/{reservation}/waitlist', [ReservationController::class, 'waitlist']);
+        Route::post('reservations/{reservation}/extra-services', [ReservationController::class, 'addExtras']);
+        Route::delete('reservations/{reservation}/extra-services/{extraService}', [ReservationController::class, 'removeExtra']);
         Route::delete('reservations/{reservation}', [ReservationController::class, 'destroy']);
 
         Route::get('user/reservations/upcoming', [UserReservationController::class, 'upcoming']);
