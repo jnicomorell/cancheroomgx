@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\TournamentController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\AdminReportController;
 use App\Http\Controllers\Api\AdminReservationController;
+use App\Http\Controllers\Api\ReviewController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -76,6 +77,8 @@ Route::prefix('v1')->group(function () {
         Route::get('user/reservations/cancelled', [UserReservationController::class, 'cancelled']);
 
         Route::post('payments/checkout', [PaymentController::class, 'checkout']);
+
+        Route::apiResource('fields.reviews', ReviewController::class)->except(['create', 'edit']);
     });
 
     Route::post('payments/webhook', PaymentWebhookController::class);
