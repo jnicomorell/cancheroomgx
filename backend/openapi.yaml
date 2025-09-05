@@ -100,11 +100,29 @@ paths:
     get:
       summary: List tournaments
       responses:
-        '200': {description: OK}
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tournament'
     post:
       summary: Create tournament
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TournamentRequest'
       responses:
-        '201': {description: Created}
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tournament'
   /tournaments/{id}:
     get:
       summary: Show tournament
@@ -114,7 +132,12 @@ paths:
           required: true
           schema: {type: integer}
       responses:
-        '200': {description: OK}
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tournament'
     put:
       summary: Update tournament
       parameters:
@@ -122,8 +145,19 @@ paths:
           in: path
           required: true
           schema: {type: integer}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TournamentRequest'
       responses:
-        '200': {description: OK}
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tournament'
     delete:
       summary: Delete tournament
       parameters:
@@ -141,8 +175,24 @@ paths:
           in: path
           required: true
           schema: {type: integer}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - team_name
+              properties:
+                team_name:
+                  type: string
       responses:
-        '201': {description: Created}
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registration'
   /reservations:
     get:
       summary: List user reservations
@@ -359,3 +409,62 @@ components:
         amount:
           type: number
           format: float
+    TournamentRequest:
+      type: object
+      required:
+        - name
+        - start_date
+      properties:
+        name:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        location:
+          type: string
+          nullable: true
+    Tournament:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+          nullable: true
+        location:
+          type: string
+          nullable: true
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/Team'
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Registration:
+      type: object
+      properties:
+        id:
+          type: integer
+        tournament_id:
+          type: integer
+        team_id:
+          type: integer
+        team:
+          $ref: '#/components/schemas/Team'
+        tournament:
+          $ref: '#/components/schemas/Tournament'
