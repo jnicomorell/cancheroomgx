@@ -25,6 +25,41 @@ paths:
       summary: Login user
       responses:
         '200': {description: Token}
+  /auth/forgot-password:
+    post:
+      summary: Send password reset link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: {type: string}
+      responses:
+        '200': {description: Link sent}
+  /auth/reset-password:
+    post:
+      summary: Reset user password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, email, password]
+              properties:
+                token: {type: string}
+                email: {type: string}
+                password: {type: string}
+      responses:
+        '200': {description: Password reset}
+  /auth/logout:
+    post:
+      summary: Logout user
+      responses:
+        '200': {description: Logged out}
   /auth/{provider}/redirect:
     get:
       summary: Redirect to social auth provider
@@ -96,6 +131,65 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Field'
+    post:
+      summary: Create field
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FieldRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Field'
+  /fields/{id}:
+    get:
+      summary: Show field
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Field'
+    put:
+      summary: Update field
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FieldRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Field'
+    delete:
+      summary: Delete field
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        '204': {description: No Content}
   /tournaments:
     get:
       summary: List tournaments
@@ -221,6 +315,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/Reservation'
   /reservations/{id}:
+    put:
+      summary: Update reservation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
     delete:
       summary: Cancel reservation
       parameters:
@@ -238,6 +352,24 @@ paths:
                 properties:
                   message:
                     type: string
+  /reservations/{id}/waitlist:
+    post:
+      summary: Join reservation waitlist
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        '201':
+          description: Joined
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  position:
+                    type: integer
   /payments/checkout:
     post:
       summary: Checkout payment
@@ -261,6 +393,37 @@ paths:
                   init_point:
                     type: string
                     nullable: true
+  /payments/manual:
+    post:
+      summary: Register manual payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentManualRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+  /payments/{id}/confirm:
+    post:
+      summary: Confirm manual payment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        '200':
+          description: Confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
   /payments/webhook:
     post:
       summary: MercadoPago webhook
@@ -336,6 +499,30 @@ components:
         price_per_hour:
           type: number
           format: float
+    FieldRequest:
+      type: object
+      required:
+        - club_id
+        - name
+        - sport
+        - price_per_hour
+      properties:
+        club_id:
+          type: integer
+        name:
+          type: string
+        sport:
+          type: string
+        surface:
+          type: string
+          nullable: true
+        indoor:
+          type: boolean
+        lighting:
+          type: boolean
+        price_per_hour:
+          type: number
+          format: float
     ReservationRequest:
       type: object
       required:
@@ -382,6 +569,17 @@ components:
       properties:
         reservation_id:
           type: integer
+    PaymentManualRequest:
+      type: object
+      required:
+        - reservation_id
+        - amount
+      properties:
+        reservation_id:
+          type: integer
+        amount:
+          type: number
+          format: float
     PaymentWebhookRequest:
       type: object
       required:

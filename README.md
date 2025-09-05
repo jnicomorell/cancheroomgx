@@ -62,4 +62,4 @@ pnpm run build
 
 ## API
 
-Documentation for the backend endpoints is available in the OpenAPI format. You can view it using Swagger UI [here](backend/openapi.html).
+Documentation for the backend endpoints is available in the OpenAPI format. The HTML documentation generated with Swagger UI can be found [here](backend/openapi.html).
