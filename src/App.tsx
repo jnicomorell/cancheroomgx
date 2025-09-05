@@ -15,6 +15,8 @@ import Tournaments from './pages/Tournaments';
 import NotFound from './pages/NotFound';
 import FieldsPage from './pages/FieldsPage';
 import FieldDetails from './pages/FieldDetails';
+import PaymentPage from './pages/PaymentPage';
+import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,11 @@ const App = () => (
               <Route path="/tournaments" element={<Tournaments />} />
               <Route path="/fields" element={<FieldsPage />} />
               <Route path="/fields/:fieldId" element={<FieldDetails />} />
+              <Route path="/payments/:id" element={<PaymentPage />} />
+              <Route
+                path="/payments/:id/confirmation"
+                element={<PaymentConfirmationPage />}
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>

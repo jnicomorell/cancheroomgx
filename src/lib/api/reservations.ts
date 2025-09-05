@@ -27,4 +27,16 @@ export const listUserReservations = async (): Promise<Booking[]> => {
   return response.data.data ?? response.data;
 };
 
-export default { createReservation, cancelReservation, listUserReservations };
+export const getReservation = async (
+  id: string | number
+): Promise<Booking> => {
+  const response = await api.get(`/api/v1/reservations/${id}`);
+  return response.data;
+};
+
+export default {
+  createReservation,
+  cancelReservation,
+  listUserReservations,
+  getReservation,
+};
