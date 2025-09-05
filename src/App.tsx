@@ -13,6 +13,8 @@ import MyBookings from './pages/MyBookings';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Tournaments from './pages/Tournaments';
 import NotFound from './pages/NotFound';
+import FieldsPage from './pages/FieldsPage';
+import FieldDetails from './pages/FieldDetails';
 
 const queryClient = new QueryClient();
 
@@ -32,6 +34,8 @@ const App = () => (
               <Route path="/bookings" element={<MyBookings />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/tournaments" element={<Tournaments />} />
+              <Route path="/fields" element={<FieldsPage />} />
+              <Route path="/fields/:fieldId" element={<FieldDetails />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>
