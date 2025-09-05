@@ -29,6 +29,18 @@ export interface Club {
   createdAt: string;
 }
 
+export interface Field {
+  id: number;
+  club_id: number;
+  name: string;
+  sport: string;
+  surface: string;
+  indoor: boolean;
+  lighting: boolean;
+  price_per_hour: number;
+  club?: Club;
+}
+
 export interface Court {
   id: string;
   clubId: string;
