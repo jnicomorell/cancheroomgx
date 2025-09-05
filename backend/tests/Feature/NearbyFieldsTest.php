@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Api;
+namespace Tests\Feature;
 
 use App\Models\Club;
 use App\Models\Field;
@@ -9,11 +9,11 @@ use App\Services\WeatherService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class NearbyFieldTest extends TestCase
+class NearbyFieldsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_can_get_nearby_fields_with_weather_and_cache(): void
+    public function test_can_get_nearby_fields_with_distance_price_and_weather_and_cache(): void
     {
         config(['cache.default' => 'redis', 'cache.stores.redis.driver' => 'array']);
 
@@ -60,8 +60,12 @@ class NearbyFieldTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonCount(1, 'data')
-            ->assertJsonFragment(['name' => 'Near Field'])
-            ->assertJsonFragment(['temp' => 20]);
+            ->assertJsonFragment([
+                'name' => 'Near Field',
+                'price_per_hour' => 100,
+            ])
+            ->assertJsonFragment(['temp' => 20])
+            ->assertJsonPath('data.0.distance', 0);
 
         // second request should hit cache, weather service not called again
         $this->withHeader('Authorization', 'Bearer ' . $token)

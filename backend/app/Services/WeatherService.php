@@ -10,13 +10,17 @@ class WeatherService
     {
     }
 
+    /**
+     * Retrieve current weather data from the OpenWeatherMap API.
+     */
     public function getWeather(float $lat, float $lng): array
     {
-        $response = $this->client->get('https://api.open-meteo.com/v1/forecast', [
+        $response = $this->client->get('https://api.openweathermap.org/data/2.5/weather', [
             'query' => [
-                'latitude' => $lat,
-                'longitude' => $lng,
-                'current_weather' => true,
+                'lat'   => $lat,
+                'lon'   => $lng,
+                'appid' => config('services.openweather.key'),
+                'units' => 'metric',
             ],
         ]);
 
