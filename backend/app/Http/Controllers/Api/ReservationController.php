@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReservationRequest;
 use App\Models\Reservation;
+use App\Models\ExtraService;
 use App\Models\Waitlist;
 use App\Notifications\ReservationReminderNotification;
 use App\Notifications\WeatherAlertNotification;
 use App\Services\WeatherService;
+use App\Services\CalendarService;
 use Illuminate\Http\Request;
 
 class ReservationController extends Controller
@@ -18,7 +20,7 @@ class ReservationController extends Controller
         return $request->user()->reservations()->with('field.club')->get();
     }
 
-    public function store(ReservationRequest $request, WeatherService $weather)
+    public function store(ReservationRequest $request, WeatherService $weather, CalendarService $calendar)
     {
         $overlap = Reservation::where('field_id', $request->field_id)
             ->where('status', 'confirmed')
@@ -55,6 +57,8 @@ class ReservationController extends Controller
             );
         }
 
+        $calendar->createEvent($reservation);
+
         return response()->json($reservation, 201);
     }
 
@@ -69,7 +73,7 @@ class ReservationController extends Controller
         return response()->json(['message' => 'Reservation cancelled']);
     }
 
-    public function update(Request $request, Reservation $reservation)
+    public function update(Request $request, Reservation $reservation, CalendarService $calendar)
     {
         if ($reservation->user_id !== $request->user()->id) {
             abort(403);
@@ -100,6 +104,8 @@ class ReservationController extends Controller
 
         $reservation->update(['status' => 'cancelled']);
 
+        $calendar->updateEvent($newReservation);
+
         return response()->json($newReservation);
     }
 
@@ -114,5 +120,24 @@ class ReservationController extends Controller
         ]);
 
         return response()->json($waitlist, 201);
+    }
+
+    public function addExtras(Request $request, Reservation $reservation)
+    {
+        $data = $request->validate([
+            'extra_services' => ['array'],
+            'extra_services.*' => ['exists:extra_services,id'],
+        ]);
+
+        $reservation->extraServices()->sync($data['extra_services'] ?? []);
+
+        return response()->json(['message' => __('extra_services.attached')]);
+    }
+
+    public function removeExtra(Reservation $reservation, ExtraService $extraService)
+    {
+        $reservation->extraServices()->detach($extraService->id);
+
+        return response()->json(['message' => __('extra_services.detached')]);
     }
 }
